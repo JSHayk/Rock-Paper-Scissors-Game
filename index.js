@@ -53,3 +53,4 @@ function shakePlayer(el, icon) {
   `;
   }, 2000);
 }
+function some() {}
