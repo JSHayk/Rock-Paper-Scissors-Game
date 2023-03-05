@@ -11,6 +11,17 @@ body {
     background-color: #F5F5F5;
 }
 
+#root {
+    padding: 24px;
+}
+
+/* Styling Status */
+.status > div {
+    display: flex;
+}
+.status p {
+    margin-left: 6px;
+}
 /* Styling Match */
 .match {
     display: flex;
@@ -28,6 +39,22 @@ body {
 
 .player2-animation {
     animation: shakePlayer2 2s;
+}
+
+.buttons > button {
+    width: 140px;
+    height: 42px;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    border-radius: 6px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, .25);
+    outline: none;
+    background-color: #fff;
+    cursor: pointer;
+}
+.buttons > button:not(:first-child) {
+    margin-left: 18px;
 }
 
 /* Animations */

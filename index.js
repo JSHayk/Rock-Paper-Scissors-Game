@@ -1,9 +1,5 @@
-// Setting Events
-state().rock.el.addEventListener("click", shakeRock);
-
-function state() {
-  // 1 - rock, 2 - paper, 3 - scissors
-  return {
+const state = {
+  ways: {
     rock: {
       el: document.getElementById("rock"),
       icon: "../assets/rock.png",
@@ -19,38 +15,140 @@ function state() {
       icon: "../assets/scissors.png",
       state: 3,
     },
+  },
+  players: {
     player1: {
-      currentState: 1,
+      currentState: null,
       el: document.getElementById("player1"),
+      wins_count: JSON.parse(localStorage.getItem("players_wins")).player1
     },
     player2: {
-      currentState: 1,
+      currentState: null,
       el: document.getElementById("player2"),
+      wins_count: JSON.parse(localStorage.getItem("players_wins")).player2
     },
-  };
-}
-// Events Callbacks
-function shakeRock() {
-  const player1El = state().player1.el;
-  const rockIcon = state().paper.icon;
-  shakePlayer(player1El, rockIcon);
+  },
+  status: {
+    player1_status: document.getElementById("player1-status"),
+    player2_status: document.getElementById("player2-status"),
+  }
 }
 
-function shakePlayers() {
-  addClass(state().player1.el, "player1-animation");
-  addClass(state().player2.el, "player2-animation");
+function shakeRock() {
+  const rock = state.ways.rock;
+  runPlayers(rock.icon, rock.state);
+  checkPlayers();
+}
+
+function shakePaper() {
+  const paper = state.ways.paper;
+  runPlayers(paper.icon, paper.state);
+  checkPlayers();
+}
+
+function shakeScissors(){
+  const scissors = state.ways.scissors;
+  runPlayers(scissors.icon, scissors.state);
+  checkPlayers();
+}
+
+function runPlayers(icon, setState) {
+  const player1 = state.players.player1;
+  const player2 = state.players.player2;
+  const randomState = Math.ceil(Math.random() * 3);
+  const randomIcon = findWay(randomState)
+  runPlayer({player: player1, icon, className: "player1-animation", state: setState});
+  runPlayer({player: player2, icon: randomIcon, className: "player2-animation", state: randomState});
+}
+
+function runPlayer({player, icon, className, state}) {
+  shakePlayer(player.el, icon, className);
+  changeState(player, state);
+}
+
+function checkPlayers() {
+  checkWin();
+  checkLose();
+}
+
+function checkWin() {
+  const player1State = state.players.player1.currentState;
+  const player2State = state.players.player2.currentState;
+  if (player1State === 1 && player2State === 3) {
+    console.log("Player1 win rock & scissors!")
+  } else if (player1State === 3 && player2State === 2) {
+    console.log("Player1 win scissors & paper")
+  } else if (player1State === 2 && player2State === 1) {
+    console.log("Player1 win paper & rock")
+  } else {
+    return;
+  }
+
+  const playersWins = JSON.parse(localStorage.getItem("players_wins"));
+  localStorage.setItem("players_wins", JSON.stringify({
+    ...playersWins,
+    player1: playersWins.player1 + 1
+  }))
+}
+
+function checkLose() {
+  const player1State = state.players.player1.currentState;
+  const player2State = state.players.player2.currentState;
+  if (player1State === 1 && player2State === 2) {
+    console.log("Player1 lose rock && paper")
+  } else if (player1State === 2 && player2State === 3) {
+    console.log("Player1 lose paper & scissors")
+  } else if (player1State === 3 && player2State === 1) {
+    console.log("Player1 lose scissors & rock")
+  }
+  const playersWins = JSON.parse(localStorage.getItem("players_wins"));
+  localStorage.setItem("players_wins", JSON.stringify({
+    ...playersWins,
+    player2: playersWins.player2 + 1
+  }))
+}
+
+function shakePlayer(el, icon, className) {
+  setTimeout(() => {
+    el.innerHTML = `
+    <img src="${icon}" alt="shake" />
+  `;
+  }, 2000);
+  addClass(el, className);
+}
+
+function changeState(player, newState) {
+  player.currentState = newState;
 }
 
 function addClass(el, className) {
   el.classList.add(className);
 }
 
-function shakePlayer(el, icon) {
-  shakePlayers();
-  setTimeout(() => {
-    el.innerHTML = `
-    <img src="${icon}" alt="shake" />
-  `;
-  }, 2000);
+function findWay(num) {
+  const ways = Object.entries(state.ways);
+  const result = ways.filter(item => {
+    const [key, value] = item;
+    if (value.state === num) {
+      return value.icon;
+    }
+  })
+  const way = result[0];
+  if (!way) return null;
+  const icon = result[0][1].icon;
+  return icon;
 }
-function some() {}
+
+function changePlayersStatus(){
+  state.status.player1_status.innerHTML = state.players.player1.wins_count;
+  state.status.player2_status.innerHTML = state.players.player2.wins_count;
+}
+function start() {
+  changePlayersStatus();
+  // Setting Events
+  state.ways.rock.el.addEventListener("click", shakeRock);
+  state.ways.paper.el.addEventListener("click", shakePaper);
+  state.ways.scissors.el.addEventListener("click", shakeScissors);
+}
+
+start();
