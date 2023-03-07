@@ -31,7 +31,21 @@ const state = {
   status: {
     player1_status: document.getElementById("player1-status"),
     player2_status: document.getElementById("player2-status"),
+  },
+  modal: {
+    el: document.getElementById("modal"),
+    title: document.getElementById("modal-title"),
+    button: document.getElementById("modal-button")
   }
+}
+
+function start() {
+  changePlayersStatus();
+  // Setting Events
+  state.ways.rock.el.addEventListener("click", shakeRock);
+  state.ways.paper.el.addEventListener("click", shakePaper);
+  state.ways.scissors.el.addEventListener("click", shakeScissors);
+  state.modal.button.addEventListener("click", restartGame)
 }
 
 function shakeRock() {
@@ -81,6 +95,9 @@ function checkWin() {
   } else if (player1State === 2 && player2State === 1) {
     console.log("Player1 win paper & rock")
   } else {
+    setTimeout(() => {
+      standoff();
+    }, 2400);
     return;
   }
 
@@ -89,6 +106,9 @@ function checkWin() {
     ...playersWins,
     player1: playersWins.player1 + 1
   }))
+  setTimeout(() => {
+    win();
+  }, 2400);
 }
 
 function checkLose() {
@@ -100,12 +120,20 @@ function checkLose() {
     console.log("Player1 lose paper & scissors")
   } else if (player1State === 3 && player2State === 1) {
     console.log("Player1 lose scissors & rock")
+  } else {
+    setTimeout(() => {
+      standoff();
+    }, 2400);
+    return;
   }
   const playersWins = JSON.parse(localStorage.getItem("players_wins"));
   localStorage.setItem("players_wins", JSON.stringify({
     ...playersWins,
     player2: playersWins.player2 + 1
-  }))
+  }));
+  setTimeout(() => {
+    lose();
+  }, 2400);
 }
 
 function shakePlayer(el, icon, className) {
@@ -117,6 +145,37 @@ function shakePlayer(el, icon, className) {
   addClass(el, className);
 }
 
+function changePlayersStatus(){
+  state.status.player1_status.innerHTML = state.players.player1.wins_count;
+  state.status.player2_status.innerHTML = state.players.player2.wins_count;
+}
+
+function win() {
+  const modal = state.modal.el;
+  const modalTitle = state.modal.title;
+  modalTitle.innerHTML = "Player 1 win";
+  show(modal)
+}
+
+function lose() {
+  const modal = state.modal.el;
+  const modalTitle = state.modal.title;
+  modalTitle.innerHTML = "Player 1 lose";
+  show(modal)
+}
+
+function standoff() {
+  const modal = state.modal.el;
+  const modalTitle = state.modal.title;
+  modalTitle.innerHTML = "No One Win!";
+  show(modal)
+}
+
+function restartGame() {
+  location.reload();
+}
+
+// Helpers
 function changeState(player, newState) {
   player.currentState = newState;
 }
@@ -139,16 +198,14 @@ function findWay(num) {
   return icon;
 }
 
-function changePlayersStatus(){
-  state.status.player1_status.innerHTML = state.players.player1.wins_count;
-  state.status.player2_status.innerHTML = state.players.player2.wins_count;
+function hide(el) {
+  el.classList.add("hide");
+  el.classList.remove("show")
 }
-function start() {
-  changePlayersStatus();
-  // Setting Events
-  state.ways.rock.el.addEventListener("click", shakeRock);
-  state.ways.paper.el.addEventListener("click", shakePaper);
-  state.ways.scissors.el.addEventListener("click", shakeScissors);
+
+function show(el) {
+  el.classList.add("show");
+  el.classList.remove("hide")
 }
 
 start();
